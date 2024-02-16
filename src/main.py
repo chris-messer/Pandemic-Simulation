@@ -8,7 +8,7 @@ class Classroom():
         self.students = students
         self.sim_length = sim_length
         self.trial = trial
-        self.stats = pd.DataFrame(columns=['trial', 'day', 'infected', 'contagious', 'exposure'],
+        self.stats = pd.DataFrame(columns=['trial', 'day','masked','vaccinated', 'infected', 'contagious', 'exposure'],
                                   index=range(sim_length + 1))
 
 
@@ -35,10 +35,15 @@ class Classroom():
         infected_len = len(infected)
         contagious = [s for s in self.students if s.contagious]
         contagious_len = len(contagious)
+        masked = len([s for s in self.students if s.masked ==1])
+        vaccinated = len([s for s in self.students if s.vaccinated == 1])
+
         data = {'trial': self.trial,
                 'day': i,
                 'infected': infected_len,
                 'contagious': contagious_len,
+                'masked': masked,
+                'vaccinated': vaccinated,
                 'exposure': exposure}
         self.stats.iloc[i] = data
 
@@ -86,7 +91,7 @@ if __name__ == '__main__':
 
     vaccinated_percentage = .5
     vaccine_efficiency = .8
-    masked_percentage = 100
+    masked_percentage = 1
     mask_effectiveness = .5
     infectiousness = .02
 
