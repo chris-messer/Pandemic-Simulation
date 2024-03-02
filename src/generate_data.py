@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+import os
 
 
 class Classroom():
@@ -8,9 +9,9 @@ class Classroom():
         self.students = students
         self.sim_length = sim_length
         self.trial = trial
-        self.stats = pd.DataFrame(columns=['trial', 'day','masked','vaccinated', 'infected', 'contagious', 'exposure'],
-                                  index=range(sim_length + 1))
-
+        self.stats = pd.DataFrame(
+            columns=['trial', 'day', 'masked', 'vaccinated', 'infected', 'contagious', 'exposure'],
+            index=range(sim_length))
 
     def run_simulation(self):
         exposure = self._calc_exposure()
@@ -35,7 +36,7 @@ class Classroom():
         infected_len = len(infected)
         contagious = [s for s in self.students if s.contagious]
         contagious_len = len(contagious)
-        masked = len([s for s in self.students if s.masked ==1])
+        masked = len([s for s in self.students if s.masked == 1])
         vaccinated = len([s for s in self.students if s.vaccinated == 1])
 
         data = {'trial': self.trial,
@@ -83,29 +84,66 @@ class Student():
     def infect(self):
         self.previously_infected = True
         self.contagious = True
-        self.P_io = infectiousness * (1 - (self.masked * self.P_me))
+        self.P_io = self.infectiousness * (1 - (self.masked * self.P_me))
+
+
+class Controller():
+    def __init__(self,
+                 number_of_students,
+                 vaccinated_percentage,
+                 vaccine_efficiency,
+                 masked_percentage,
+                 mask_effectiveness,
+                 infectiousness,
+                 sim_length,
+                 num_trials
+                 ):
+        self.number_of_students = number_of_students
+        self.vaccinated_percentage = vaccinated_percentage
+        self.vaccine_efficiency = vaccine_efficiency
+        self.masked_percentage = masked_percentage
+        self.mask_effectiveness = mask_effectiveness
+        self.infectiousness = infectiousness
+        self.sim_length = sim_length
+        self.num_trials = num_trials
+        self.sim_results = pd.DataFrame(
+            columns=['trial', 'day', 'masked', 'vaccinated', 'infected', 'contagious', 'exposure'])
+
+    def _build_student_list(self):
+        Students = [Student(self.vaccinated_percentage,
+                            self.vaccine_efficiency,
+                            self.masked_percentage,
+                            self.mask_effectiveness,
+                            self.infectiousness)
+                    for i in range(self.number_of_students)]
+
+        Students[0].vaccinated = 0
+        Students[0].infect()
+        return Students
+
+    def run_Simulation(self):
+        for i in range(self.num_trials):
+            Students = self._build_student_list()
+            c = Classroom(Students, self.sim_length, i + 1)
+            c.run_simulation()
+
+            self.sim_results = pd.concat([self.sim_results, c.stats])
 
 
 if __name__ == '__main__':
-    number_of_students = 200
+    sim = Controller(number_of_students=30,
+                     vaccinated_percentage=0,
+                     vaccine_efficiency=.8,
+                     masked_percentage=0,
+                     mask_effectiveness=.5,
+                     infectiousness=.02,
+                     sim_length=30,
+                     num_trials=50000)
 
-    vaccinated_percentage = .5
-    vaccine_efficiency = .8
-    masked_percentage = 1
-    mask_effectiveness = .5
-    infectiousness = .02
-
-    Students = [Student(vaccinated_percentage,
-                        vaccine_efficiency,
-                        masked_percentage,
-                        mask_effectiveness,
-                        infectiousness)
-                for i in range(number_of_students)]
-
-    Students[0].vaccinated = 0
-    Students[0].infect()
-
-    c = Classroom(Students, sim_length=100, trial=1)
-    c.run_simulation()
-    stats = c.stats
+    sim.run_Simulation()
+    current_directory = os.getcwd()
+    parent_directory = os.path.dirname(current_directory)
+    sim.sim_results.to_csv(parent_directory+'/data/no_mask_no_vacc2.csv')
+    # plot a histogram of the number of infected students
+    # plt =  sim.sim_results['infected'].hist()
     print('finished')
