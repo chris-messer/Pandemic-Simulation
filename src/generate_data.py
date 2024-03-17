@@ -138,12 +138,12 @@ if __name__ == '__main__':
                      mask_effectiveness=.5,
                      infectiousness=.02,
                      sim_length=30,
-                     num_trials=50000)
+                     num_trials=10000)
 
     sim.run_Simulation()
     current_directory = os.getcwd()
     parent_directory = os.path.dirname(current_directory)
-    sim.sim_results.to_csv(parent_directory+'/data/no_mask_no_vacc2.csv')
+    sim.sim_results.to_csv(parent_directory+'/data/no_mask_no_vacc_10k.csv')
     # plot a histogram of the number of infected students
     # plt =  sim.sim_results['infected'].hist()
     print('finished')
