@@ -132,8 +132,8 @@ class Controller():
 
 if __name__ == '__main__':
     sim = Controller(number_of_students=30,
-                     vaccinated_percentage=0,
-                     vaccine_efficiency=.8,
+                     vaccinated_percentage=.5,
+                     vaccine_efficiency=1,
                      masked_percentage=0,
                      mask_effectiveness=.5,
                      infectiousness=.02,
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     sim.run_Simulation()
     current_directory = os.getcwd()
     parent_directory = os.path.dirname(current_directory)
-    sim.sim_results.to_csv(parent_directory+'/data/no_mask_no_vacc_10k.csv')
+    sim.sim_results.to_csv(parent_directory+'/data/50pcnt_vacc_10k.csv')
     # plot a histogram of the number of infected students
     # plt =  sim.sim_results['infected'].hist()
     print('finished')
