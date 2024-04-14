@@ -84,7 +84,7 @@ class Student():
     def infect(self):
         self.previously_infected = True
         self.contagious = True
-        self.P_io = self.infectiousness * (1 - (self.masked * self.P_me))
+        self.P_io = self.infectiousness * (1 - (self.masked * self.P_me))(1)
 
 
 class Controller():
